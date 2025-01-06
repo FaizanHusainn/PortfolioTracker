@@ -31,4 +31,8 @@ public class UserService {
         }
     }
 
+    public Users getCurrentUser(String username){
+        return repo.findByUserName(username);
+    }
+
 }

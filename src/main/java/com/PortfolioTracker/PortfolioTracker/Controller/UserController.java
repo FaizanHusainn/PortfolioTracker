@@ -97,4 +97,9 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{username}")
+    public Users getCurrentUser(@PathVariable String username){
+       return userService.getCurrentUser(username);
+    }
+
 }
