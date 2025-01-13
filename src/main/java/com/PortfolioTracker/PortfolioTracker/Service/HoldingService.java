@@ -36,6 +36,9 @@ public class HoldingService {
             double realtimePrice = fetchRealTimePriceWithRetries(apiUrl);
             holding.setRealtimePrice(realtimePrice);
             holding.setTotalValue(realtimePrice * holding.getQuantity());
+            if(holding.getBuyPrice() == 0.0){
+                holding.setBuyPrice(realtimePrice);
+            }
         } catch (Exception e) {
             // Handle errors and set default values
             System.err.println("Error fetching real-time price: " + e.getMessage());
@@ -48,7 +51,7 @@ public class HoldingService {
     }
 
 
-    private double fetchRealTimePriceWithRetries(String apiUrl) throws Exception {
+    public double fetchRealTimePriceWithRetries(String apiUrl) throws Exception {
         int attempt = 0;
         while (attempt < MAX_RETRIES) {
             try {
@@ -85,32 +88,15 @@ public class HoldingService {
             System.out.println("Total Value : "+e.getTotalValue());
         }
 
-//        for (HoldingEntity holding : holdings) {
-//            String apiUrl = BASE_URL + "&symbol=" + holding.getTicker() + "&apikey=" + API_KEY;
-//
-//            try {
-//                // Fetch real-time price
-//                double realtimePrice = fetchRealTimePriceWithRetries(apiUrl);
-//                holding.setRealtimePrice(realtimePrice);
-//                holding.setTotalValue(realtimePrice * holding.getQuantity());
-//
-//                // Update the database with the new values
-//                holdingRepository.save(holding);
-//            } catch (Exception e) {
-//                System.err.println("Error fetching real-time price for holding: " + holding.getTicker());
-//                holding.setRealtimePrice(0.0);
-//                holding.setTotalValue(0.0);
-//
-//                // Update the database with default values
-//                holdingRepository.save(holding);
-//            }
-//        }
-
         return holdings;
     }
 
 
     public void deleteHolding(Long id) {
         holdingRepository.deleteById(id);
+    }
+
+    public List<HoldingEntity> findHoldingsByUsername(String username){
+       return holdingRepository.findByUsername(username);
     }
 }
