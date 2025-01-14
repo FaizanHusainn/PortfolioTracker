@@ -52,7 +52,7 @@ public class StocksController {
             currHolding.setUsername(username);
             currHolding.setStock(randomStock.getStockname());
             currHolding.setTicker(randomStock.getTicker());
-            currHolding.setTicker("1");
+            currHolding.setQuantity(1);
          //   currHolding.setBuyPrice(realtimePrice);
 //            currHolding.setRealtimePrice(realtimePrice);
 //            currHolding.setTotalValue(realtimePrice);
