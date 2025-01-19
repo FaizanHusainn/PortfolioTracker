@@ -1,16 +1,21 @@
 package com.PortfolioTracker.PortfolioTracker.Controller;
 
 import com.PortfolioTracker.PortfolioTracker.Entity.Users;
+import com.PortfolioTracker.PortfolioTracker.Exception.ApiException;
 import com.PortfolioTracker.PortfolioTracker.Repository.UserRepository;
 import com.PortfolioTracker.PortfolioTracker.Service.JWTService;
+import com.PortfolioTracker.PortfolioTracker.Service.StocksService;
 import com.PortfolioTracker.PortfolioTracker.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -27,22 +32,43 @@ public class UserController {
     @Autowired
     private JWTService jwtService;
 
+    @Autowired
+    private StocksService stocksService;
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     // 1. Add a new user (signup)
+    @Transactional(rollbackFor = {ApiException.class, Exception.class})
     @PostMapping("/add")
-    public String addUser(@RequestBody Users user) {
+    public ResponseEntity<?> addUser(@RequestBody Users user) {
         // Check if the username already exists
         Users existingUser = userRepository.findByUserName(user.getUserName());
         if (existingUser != null) {
-            return "Username already exists";
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
         }
-        user.setUuid(null);
-        user.setPassword(encoder.encode(user.getPassword()));
-        // Save new user
-        userRepository.save(user);
-        return jwtService.generateToken(user.getUserName());
+
+        try {
+            user.setUuid(null);
+            user.setPassword(encoder.encode(user.getPassword()));
+            // Added the stocks to user
+            stocksService.addStocksToNewUser(user.getUserName());
+            String token = jwtService.generateToken(user.getUserName());
+            // Save new user
+            userRepository.save(user);
+            return ResponseEntity.ok(token); // Return the token on success
+        } catch (ApiException e) {
+            // Handle API exceptions (e.g., Alpha Vantage API limit exhausted)
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (Exception e) {
+            // Handle other exceptions
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "An unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     // 2. Delete a user with the username

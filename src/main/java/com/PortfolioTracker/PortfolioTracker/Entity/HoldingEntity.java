@@ -34,7 +34,17 @@ public class HoldingEntity {
     private double realtimePrice; // Now stored in DB
 
     @Column(nullable = false)
-    private double totalValue; // Now stored in DB
+    private double totalValue;
+
+    private String date;
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 
     public String getTicker() {
         return ticker;
