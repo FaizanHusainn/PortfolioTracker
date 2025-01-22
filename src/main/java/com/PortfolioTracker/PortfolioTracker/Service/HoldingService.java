@@ -7,6 +7,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.util.concurrent.RateLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,7 +33,9 @@ public class HoldingService {
     private final HoldingRepository holdingRepository;
     private final RestTemplate restTemplate;
 
-    private static final String API_KEY = "CYR6Q8UUI10WWTV2"; // Your API key
+
+    private static String API_KEY="CYR6Q8UUI10WWTV2";// API secret key fetched from application properties.
+
     private static final String BASE_URL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY";
 
     // Rate limiter to enforce 5 requests per minute
