@@ -51,10 +51,11 @@ public class UserController {
             user.setUuid(null);
             user.setPassword(encoder.encode(user.getPassword()));
             // Added the stocks to user
+            userRepository.save(user);
             stocksService.addStocksToNewUser(user.getUserName());
             String token = jwtService.generateToken(user.getUserName());
             // Save new user
-            userRepository.save(user);
+            
             return ResponseEntity.ok(token); // Return the token on success
         } catch (ApiException e) {
             // Handle API exceptions (e.g., Alpha Vantage API limit exhausted)
