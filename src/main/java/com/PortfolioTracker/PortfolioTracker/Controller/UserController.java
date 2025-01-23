@@ -52,7 +52,7 @@ public class UserController {
             user.setPassword(encoder.encode(user.getPassword()));
             // Added the stocks to user
             
-            stocksService.addStocksToNewUser(user.getUserName());
+           // stocksService.addStocksToNewUser(user.getUserName());
             String token = jwtService.generateToken(user.getUserName());
             // Save new user
             userRepository.save(user);
